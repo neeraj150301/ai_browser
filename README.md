@@ -9,18 +9,18 @@ This project follows **Clean Architecture** principles to ensure separation of c
 ```mermaid
 graph TD
     subgraph Presentation Layer
-        UI[Widgets & Pages] --> Providers[Riverpod Providers]
+        UI["Widgets & Pages"] --> Providers[Riverpod Providers]
     end
 
     subgraph Domain Layer
-        Providers --> UseCases[Use Cases / Repositories Interface]
+        Providers --> UseCases["Use Cases / Repositories Interface"]
         UseCases --> Entities[Domain Entities]
     end
 
     subgraph Data Layer
         UseCases -.-> RepositoriesImpl[Repository Implementations]
-        RepositoriesImpl --> RemoteDataSource[Remote Data Source (API)]
-        RepositoriesImpl --> LocalDataSource[Local Data Source (Hive)]
+        RepositoriesImpl --> RemoteDataSource["Remote Data Source (API)"]
+        RepositoriesImpl --> LocalDataSource["Local Data Source (Hive)"]
     end
 ```
 
@@ -40,7 +40,7 @@ graph TD
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/yourusername/browser_lite.git
+    git clone https://github.com/neeraj150301/browser_lite.git
     cd browser_lite
     ```
 
@@ -97,12 +97,15 @@ The AI features are powered by the `AiService` which interacts with the Gemini A
 
 ### Limitations
 
-- **API Quotas**: Heavy usage may hit Gemini API rate limits.
+- **Gemini API rate limits**: Heavy usage may hit Gemini API rate limits.
 - **Text-Only AI**: Currently processes text content; does not analyze images or complex page structures.
+- **Web security (CORS / sandbox)**: On web, iframe contents (DOM) cannot be fully read for cross-origin pages, limiting pure in-browser extraction.
+- **File support on Web**: Local FileSystem APIs via dart:io aren’t available, for now, rich file management + document summarization is focused on mobile.
+
 
 ### Future Improvements
 
-- [ ] **Voice Interaction**: Add text-to-speech for summaries.
-- [ ] **Offline Mode**: Cache summaries for offline access.
-- [ ] **Multi-tab Support**: Enhance browser functionality with multiple tabs.
-- [ ] **Cross-Platform Sync**: Sync history and settings across devices.
+- [ ] **Full speech-to-text for voice URL input.**
+- [ ] **Extend AI panel with quick insights.**
+- [ ] **Language detection.**
+- [ ] **Better animations (Lottie) for loading states.**
