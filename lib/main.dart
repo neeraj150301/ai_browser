@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
 
-Future<void> main() async{
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await initHive();
   runApp(const ProviderScope(child: MyApp()));
 }

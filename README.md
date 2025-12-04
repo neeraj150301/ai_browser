@@ -51,12 +51,10 @@ graph TD
     ```
 
 3.  **Configure Environment Variables:**
-    Create a file named `env.dart` in `lib/core/env/` (or check existing configuration) and add your API key:
+    Create a `.env` file in the root directory and add your API key:
 
-    ```dart
-    class Env {
-      static const String apiKey = 'YOUR_GEMINI_API_KEY';
-    }
+    ```env
+    GEMINI_API_KEY=YOUR_GEMINI_API_KEY
     ```
 
 4.  **Run the app:**
@@ -101,7 +99,6 @@ The AI features are powered by the `AiService` which interacts with the Gemini A
 - **Text-Only AI**: Currently processes text content; does not analyze images or complex page structures.
 - **Web security (CORS / sandbox)**: On web, iframe contents (DOM) cannot be fully read for cross-origin pages, limiting pure in-browser extraction.
 - **File support on Web**: Local FileSystem APIs via dart:io aren’t available, for now, rich file management + document summarization is focused on mobile.
-
 
 ### Future Improvements
 
