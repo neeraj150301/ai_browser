@@ -39,7 +39,13 @@ class _SummaryPanelState extends ConsumerState<SummaryPanel> {
     await _flutterTts.setSpeechRate(0.5);
     await _flutterTts.setVolume(1.0);
     await _flutterTts.setPitch(1.0);
-
+    try {
+      await _flutterTts.setLanguage("hi-IN");
+      await _flutterTts.setLanguage("es-ES");
+      await _flutterTts.setLanguage("fr-FR");
+      await _flutterTts.setLanguage("en-US");
+      _currentTtsLang = "en-US";
+    } catch (_) {}
     _flutterTts.setCompletionHandler(() {
       if (mounted) {
         setState(() {
@@ -224,8 +230,18 @@ class _SummaryPanelState extends ConsumerState<SummaryPanel> {
 
   bool _isTtsLoading = false;
 
+  String? _currentTtsLang;
+
   Future<void> _speak(String text, {String? language}) async {
     if (text.isEmpty || _isTtsLoading) return;
+    if (_isTtsLoading) return;
+    if (_isPlaying) {
+      await _flutterTts.stop();
+      if (!mounted) return;
+      setState(() {
+        _isPlaying = false;
+      });
+    }
 
     setState(() {
       _isTtsLoading = true;
@@ -250,9 +266,11 @@ class _SummaryPanelState extends ConsumerState<SummaryPanel> {
         }
       }
 
-      await _flutterTts.setLanguage(locale);
+      if (_currentTtsLang != locale) {
+        await _flutterTts.setLanguage(locale);
+        _currentTtsLang = locale;
+      }
 
-      // Ensure state is still mounted before playing
       if (!mounted) return;
 
       setState(() {
@@ -276,8 +294,10 @@ class _SummaryPanelState extends ConsumerState<SummaryPanel> {
 
   Future<void> _stop() async {
     await _flutterTts.stop();
+    if (!mounted) return;
     setState(() {
       _isPlaying = false;
+      _isTtsLoading = false;
     });
   }
 
@@ -463,7 +483,9 @@ class _TranslationView extends StatelessWidget {
                                               : Icons.volume_up,
                                         ),
                                   tooltip: isPlaying ? 'Stop' : 'Read Aloud',
-                                  onPressed: isPlaying ? onStop : onPlay,
+                                  onPressed: _isTtsLoading
+                                      ? null
+                                      : (isPlaying ? onStop : onPlay),
                                 ),
                               ],
                             ),
