@@ -18,10 +18,10 @@ class BrowserPage extends ConsumerStatefulWidget {
   const BrowserPage({super.key});
 
   @override
-  ConsumerState<BrowserPage> createState() => _BrowserPageState();
+  ConsumerState<BrowserPage> createState() => BrowserPageState();
 }
 
-class _BrowserPageState extends ConsumerState<BrowserPage> {
+class BrowserPageState extends ConsumerState<BrowserPage> {
   final TextEditingController _urlController = TextEditingController();
   final Map<String, InAppWebViewController?> _controllers = {};
   String? _activeTabId;
@@ -421,6 +421,36 @@ class _BrowserPageState extends ConsumerState<BrowserPage> {
     }
   }
 
+  Future<void> summarizeCurrentPage() async {
+    final activeTab = ref.read(tabManagerProvider.notifier).activeTab;
+    if (activeTab == null) return;
+    final controller = _controllers[activeTab.id];
+    if (controller == null) return;
+    final html = await controller.getHtml() ?? '';
+    if (html.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No content to summarize'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+      return;
+    }
+    await ref
+        .read(summaryProvider.notifier)
+        .summarizeWebPage(url: activeTab.url, html: html);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Summary generated (check panel bottom)'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
   Widget _buildBottomControls(BrowserTab? activeTab, bool isOnline) {
     final controller = activeTab == null ? null : _controllers[activeTab.id];
     return Container(
@@ -467,39 +497,7 @@ class _BrowserPageState extends ConsumerState<BrowserPage> {
                       ),
                     );
                   }
-                : () async {
-                    final activeTab = ref
-                        .read(tabManagerProvider.notifier)
-                        .activeTab;
-                    if (activeTab == null) return;
-                    final controller = _controllers[activeTab.id];
-                    if (controller == null) return;
-                    final html = await controller.getHtml() ?? '';
-                    if (html.isEmpty) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('No content to summarize'),
-                            duration: Duration(seconds: 1),
-                          ),
-                        );
-                      }
-                      return;
-                    }
-                    await ref
-                        .read(summaryProvider.notifier)
-                        .summarizeWebPage(url: activeTab.url, html: html);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Summary generated (check panel bottom)',
-                          ),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    }
-                  },
+                : summarizeCurrentPage,
             child: const Icon(Icons.auto_awesome),
           ),
         ],
